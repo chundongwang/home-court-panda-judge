@@ -1,10 +1,26 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 interface PandaAvatarProps {
   isThinking: boolean;
 }
 
 export const PandaAvatar: React.FC<PandaAvatarProps> = ({ isThinking }) => {
+  // State to manage image source, allowing us to try different paths if one fails
+  const [imgSrc, setImgSrc] = useState('./assets/panda-judge.png');
+
+  const handleError = () => {
+    // If the default path fails, try finding the image at the root level
+    if (imgSrc === './assets/panda-judge.png') {
+      console.log("Image not found in ./assets/, trying root path...");
+      setImgSrc('panda-judge.png');
+    } 
+    // If root path also fails, fallback to a placeholder to keep UI looking good
+    else if (imgSrc === 'panda-judge.png') {
+      console.error("Image not found at root. Using placeholder.");
+      setImgSrc('https://placehold.co/800x800/2d2d2d/f9f9f9?text=Judge+Panda');
+    }
+  };
+
   return (
     <div className="relative flex flex-col items-center justify-start mt-4">
       
@@ -13,19 +29,11 @@ export const PandaAvatar: React.FC<PandaAvatarProps> = ({ isThinking }) => {
         
         {/* The Image Frame - Designed to look like a framed portrait */}
         <div className="relative w-80 h-80 rounded-2xl overflow-hidden shadow-2xl border-[6px] border-yellow-900 bg-gray-100 ring-2 ring-yellow-700/50">
-             {/* 
-                 Displaying the specific etching-style Panda Judge avatar.
-                 The system expects 'panda-judge.png' to be available.
-                 If missing, it falls back to a placeholder.
-             */}
              <img 
-                src="panda-judge.png" 
+                src={imgSrc} 
                 alt="The Honorable Panda Judge" 
                 className="w-full h-full object-cover filter contrast-110 sepia-[.15]"
-                onError={(e) => {
-                    // Fallback to a styled placeholder if the image file is not found
-                    e.currentTarget.src = "https://placehold.co/600x600/eaddcf/2d2d2d?text=Hon.+Panda+Judge\n(Image+Missing)";
-                }}
+                onError={handleError}
              />
              
              {/* Inner Shadow / Vignette for depth */}
@@ -50,7 +58,7 @@ export const PandaAvatar: React.FC<PandaAvatarProps> = ({ isThinking }) => {
             </span>
           </div>
         ) : (
-          /* Empty space placeholder to prevent layout jump if desired, or just empty */
+          /* Empty space placeholder to prevent layout jump */
           <div className="h-full"></div>
         )}
       </div>
